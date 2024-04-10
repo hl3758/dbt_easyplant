@@ -5,4 +5,4 @@ SELECT
     _FIVETRAN_SYNCED AS _FIVETRAN_SYNCED_TS,
     CAST(EMPLOYEE_ID AS STRING) AS EMPLOYEE_ID,
     QUIT_DATE
-FROM {{ source('google_drive', 'HR_JOINS') }}
+FROM {{source('google_drive', 'HR_QUITS')}}

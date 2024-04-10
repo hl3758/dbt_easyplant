@@ -9,7 +9,7 @@ sources:
      - name: HR_JOINS
      - name: HR_QUITS
      - name: RETURNS
-  - name: web
+  - name: SNOWFLAKE_LOAD_WEB_SCHEMA
     database: LOAD
     schema: SNOWFLAKE_LOAD_WEB_SCHEMA
     tables:
