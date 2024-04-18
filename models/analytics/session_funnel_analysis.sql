@@ -3,7 +3,7 @@ FROM (
     SELECT CAST(SESSION_AT_TS AS DATE) AS SESSION_DATE,
         'Landing Page' AS PAGE_NAME,
         SUM(CASE WHEN IF_VIEWED_LANDING_PAGE THEN 1 ELSE 0 END) AS NUM_VIEWED
-    FROM {{ ref('int_session') }}
+    FROM {{ ref('int_fact_session') }}
     GROUP BY 1, 2
     
     UNION ALL
@@ -12,7 +12,7 @@ FROM (
         'Shop Plants' AS PAGE_NAME,
         SUM(CASE WHEN IF_VIEWED_LANDING_PAGE 
             AND IF_VIEWED_SHOP_PLANTS THEN 1 ELSE 0 END) AS NUM_VIEWED
-    FROM {{ ref('int_session') }}
+    FROM {{ ref('int_fact_session') }}
     WHERE FIRST_LANDING_PAGE_VIEW_TS < FIRST_SHOP_PLANTS_VIEW_TS
     GROUP BY 1, 2
     
@@ -24,7 +24,7 @@ FROM (
             AND IF_VIEWED_SHOP_PLANTS
             AND IF_VIEWED_CART
             THEN 1 ELSE 0 END) AS NUM_VIEWED
-    FROM {{ ref('int_session') }}
+    FROM {{ ref('int_fact_session') }}
     WHERE FIRST_LANDING_PAGE_VIEW_TS < FIRST_SHOP_PLANTS_VIEW_TS
         AND FIRST_SHOP_PLANTS_VIEW_TS < FIRST_CART_VIEW_TS
     GROUP BY 1, 2
@@ -38,7 +38,7 @@ FROM (
             AND IF_VIEWED_CART
             AND IF_ORDERED
             THEN 1 ELSE 0 END) AS NUM_VIEWED
-    FROM {{ ref('int_session') }}
+    FROM {{ ref('int_fact_session') }}
     WHERE FIRST_LANDING_PAGE_VIEW_TS < FIRST_SHOP_PLANTS_VIEW_TS
         AND FIRST_SHOP_PLANTS_VIEW_TS < FIRST_CART_VIEW_TS
         AND FIRST_CART_VIEW_TS < FIRST_ORDER_TS
