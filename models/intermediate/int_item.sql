@@ -1,0 +1,8 @@
+SELECT 
+    ITEM_NAME,
+    SUM(ADD_TO_CART_QUANTITY - REMOVE_FROM_CART_QUANTITY) AS TOTAL_QUANTITY
+FROM 
+    {{ ref('base_web_item_views') }}
+GROUP BY 
+    ITEM_NAME
+
