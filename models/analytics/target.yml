@@ -1,0 +1,206 @@
+version: 2
+
+models:
+  - name: daily_finances
+    description: The table for the financial summary of the expense and revenue in the daily base
+    columns:
+      - name: DATE
+        description: Each row represents an unique dates
+        tests:
+          - unique
+          - not_null
+      - name: DAILY_TAX
+        description: Amount of tax in the daily level
+      - name: DAILY_SHIPPING_COST
+        description: Amount of shipping cost in the daily level
+      - name: DAILY_SALARIES
+        description: Amount of salary expense in the daily level
+      - name: DAILY_PROFIT
+        description: Amount of revenue earned from selling plants in the daily level
+      - name: DAILY_EXPENSE
+        description: Amount of daily expense from all types in the daily level
+
+
+
+
+  - name: dim_client
+    description: The client dimension table. one row for each client
+    columns:
+      - name: CLIENT_ID
+        description: Unique identifier of each client
+        tests:
+          - unique
+          - not_null
+      - name: SERIAL_NUMBER
+        description: The serial number for each client
+      - name: CLIENT_NAME
+        description: The masked name for each client
+      - name: PHONE
+        description: The masked phone number for each client
+      - name: STATE
+        description: The clients' state information
+      - name: STATE_CODE
+        description: The clients' state code information
+      - name: IP
+        description: The clients' ip address information
+      - name: SHIPPING_ADDRESS
+        description: The masked shipping address for each client
+      - name: OS
+        description: Type of serivce used to browse website
+
+
+
+
+  - name: dim_employee
+    description: The employee dimension table. one row for each employee
+    columns:
+      - name: EMPLOYEE_ID
+        description: unique identifier of each employee
+        tests:
+          - unique
+          - not_null
+      - name: EMPLOYEE_NAME
+        description: Full name of the employee.
+      - name: EMPLOYEE_CITY
+        description: City where the employee is located.
+      - name: EMPLOYEE_ADDRESS
+        description: Full address of the employee's residence.
+      - name: EMPLOYEE_TITLE
+        description: Job title of the employee within the company.
+      - name: EMPLOYEE_ANNUAL_SALARY
+        description: Total annual salary of the employee.
+      - name: EMPLOYEE_DAILY_SALARY
+        description: Calculated daily wage of the employee, derived from the annual salary divided by 365.
+      - name: EMPLOYEE_HIRE_DATE
+        description: The date the employee was hired by the company.
+      - name: EMPLOYEE_QUIT_DATE
+        description: The date the employee resigned or left the company, if applicable.       
+      - name: WORKED_DAYS
+        description: The total number of days worked by the employee from the hire date to the quit date, or 'until now' if still employed. 
+
+
+
+  - name: dim_item
+    description: The plant dimension table. one row for each plant
+    columns:
+      - name: ITEM_NAME
+        description: The name of each plant type. This serves as the unique identifier for different types of plants.
+        tests:
+          - unique
+          - not_null
+      - name: TOTAL_QUANTITY
+        description: The net available quantity of each plant, calculated as the difference between quantities added to and removed from the cart.
+
+
+
+
+  - name: fact_order
+    description: Captures detailed information about each order placed by clients, including transaction details, shipping, and returns. This table serves as a central point for analyzing sales performance, customer activity, and logistics.
+    columns: 
+      - name: ORDER_ID
+        description: The unique identifier for each order.
+        tests:
+          - unique
+          - not_null
+      - name: SHIPPING_ADDRESS
+        description: The address where the order is shipped.
+      - name: SHIPPING_COST
+        description: Costs associated with the shipping of the order.
+      - name: PAYMENT_INFO
+        description: Encrypted or secure details about the payment method used.
+      - name: STATE
+        description: The state or region to which the order was shipped.
+      - name: SESSION_ID
+        tests:
+          - unique
+          - not_null
+        description: Identifies the web session during which the order was placed.
+      - name: CLIENT_NAME
+        description: The name of the client who placed the order, potentially masked for privacy.
+      - name: PHONE
+        description: Contact phone number masked of the client .
+      - name: TAX_RATE
+        description: The tax rate applied to the order, based on the shipping location.  
+      - name: PAYMENT_METHOD
+        description: The method of payment used for the order (e.g., credit card, PayPal, etc.).
+      - name: IS_REFUNDED_BOOLEAN
+        description: A boolean flag indicating whether the order was refunded.
+
+
+
+
+  - name: fact_session
+    description: A comprehensive record of each web session, detailing page views, user interactions, and whether a transaction was completed. This table is crucial for analyzing user behavior, engagement metrics, and conversion rates.
+    columns:
+      - name: SESSION_ID
+        description: Unique identifier for each web session.
+        tests:
+          - unique
+          - not_null
+      - name: CLIENT_ID
+        description: Identifies the client associated with the session.
+        tests:
+          - unique
+          - not_null        
+      - name: OS
+        description: Operating system used by the client during the session.
+      - name: IP
+        description: IP address of the client during the session.
+      - name: SESSION_AT_TS
+        description: Timestamp marking the start of the session.
+      - name: IF_VIEWED_LANDING_PAGE
+        description: Indicates whether the landing page was viewed during the session.
+      - name: FIRST_LANDING_PAGE_VIEW_TS
+        description: Timestamp of the first view of the landing page during the session.
+      - name: IF_VIEWED_FAQ
+        description: Indicates whether the FAQ page was viewed during the session.
+      - name: FIRST_FAQ_VIEW_TS
+        description: Timestamp of the first view of the FAQ page during the session.
+      - name: IF_VIEWED_SHOP_PLANTS
+        description: Indicates whether the shop plants page was viewed during the session.
+      - name: FIRST_SHOP_PLANTS_VIEW_TS
+        description: Timestamp of the first view of the shop plants page during the session.
+      - name: IF_VIEWED_CART
+        description: Indicates whether the cart page was viewed during the session.
+      - name: FIRST_CART_VIEW_TS
+        description: Timestamp of the first view of the cart page during the session.
+      - name: IF_VIEWED_PLANT_CARE
+        description: Indicates whether the plant care page was viewed during the session.
+      - name: FIRST_PLANT_CARE_VIEW_TS
+        description: Timestamp of the first view of the plant care page during the session.
+      - name: IF_ORDERED
+        description: Boolean flag indicating whether an order was placed during the session.
+      - name: FIRST_ORDER_TS
+        description: Timestamp of the first order placed during the session.
+
+
+  - name: session_flow_analysis
+    description: Analyzes the flow of web sessions across different pages, capturing the transition from one page to another. This table is essential for funnel analysis, helping to optimize the user journey and improve site navigation.
+    columns:
+      - name: SESSION_DATE
+        description: The date on which the session occurred, derived from the timestamp of the session.
+        tests:
+          - unique
+          - not_null
+      - name: FROM_PAGE
+        description: The page from which the user navigated.
+      - name: TO_PAGE
+        description: The destination page to which the user navigated.
+      - name: SESSION_COUNT
+        description: Count of distinct sessions that followed the specified transition from FROM_PAGE to TO_PAGE on the given date.
+
+
+  - name: session_funnel_analysis
+    description: Provides a detailed analysis of user navigation and conversion through the website, tracking progression from the landing page through shopping and cart usage, to placing an order. This table is crucial for understanding user flow and optimizing the site layout to enhance conversion rates.
+    columns:
+      - name: SESSION_DATE
+        description: The date on which the session interactions occurred, formatted as a date.
+        tests:
+          - unique
+          - not_null
+      - name: PAGE_NAME
+        description: The name of the webpage as a step in the funnel (Landing Page, Shop Plants, Cart, Order), indicating the stage of the user journey.
+      - name: NUM_VIEWED
+        description: The number of unique sessions that reached this stage of the funnel on the given day, quantifying user engagement at each funnel step.
+
+
