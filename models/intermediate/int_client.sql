@@ -1,6 +1,6 @@
 SELECT
     ss.CLIENT_ID,
-    ROW_NUMBER() OVER (PARTITION BY ss.CLIENT_ID ORDER BY oo.CLIENT_NAME asc) as SERIAL_NUMBER,
+    ROW_NUMBER() OVER (PARTITION BY ss.CLIENT_ID ORDER BY oo.CLIENT_NAME asc) as ROW_NUM,
     oo.CLIENT_NAME,
     oo.PHONE,
     oo.STATE,
@@ -10,7 +10,7 @@ SELECT
     
     
 FROM {{ ref('base_web_sessions') }} AS ss
-LEFT JOIN {{ ref('base_web_orders') }} AS oo
+INNER JOIN {{ ref('base_web_orders') }} AS oo
 ON ss.SESSION_ID = oo.SESSION_ID
 where CLIENT_NAME IS NOT NULL
 order by 1, 3
