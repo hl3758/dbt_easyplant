@@ -1,2 +1,2 @@
 SELECT *
-FROM {{ ref('int_session') }}
+FROM {{ ref('int_fact_session') }}
