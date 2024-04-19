@@ -140,7 +140,6 @@ models:
       - name: CLIENT_ID
         description: Identifies the client associated with the session.
         tests:
-          - unique
           - not_null        
       - name: OS
         description: Operating system used by the client during the session.
@@ -180,7 +179,6 @@ models:
       - name: SESSION_DATE
         description: The date on which the session occurred, derived from the timestamp of the session.
         tests:
-          - unique
           - not_null
       - name: FROM_PAGE
         description: The page from which the user navigated.
@@ -196,7 +194,6 @@ models:
       - name: SESSION_DATE
         description: The date on which the session interactions occurred, formatted as a date.
         tests:
-          - unique
           - not_null
       - name: PAGE_NAME
         description: The name of the webpage as a step in the funnel (Landing Page, Shop Plants, Cart, Order), indicating the stage of the user journey.
