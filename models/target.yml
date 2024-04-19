@@ -10,15 +10,17 @@ models:
           - unique
           - not_null
       - name: DAILY_TAX
-        description: Amount of tax in the daily level
+        description: Total tax paid by customers in the daily level (not contribute to revenue)
       - name: DAILY_SHIPPING_COST
-        description: Amount of shipping cost in the daily level
+        description: Total shipping cost paid by customers in the daily level (not contribute to revenue)
       - name: DAILY_SALARY
-        description: Amount of salary expense in the daily level
+        description: Total employee salary paid in the daily level, calculated by sum(annual_salary/365)
       - name: DAILY_REVENUE
-        description: Amount of revenue earned from selling plants in the daily level
+        description: Total revenue earned from selling plants in the daily level
       - name: DAILY_EXPENSE
         description: Amount of daily expense from all types in the daily level
+      - name: DAILY_PROFIT
+        description: Daily Revenue - Daily Salary - Daily Expense
 
 
 
