@@ -5,7 +5,7 @@ models:
     description: The table for the financial summary of the expense and revenue in the daily base
     columns:
       - name: DATE
-        description: Each row represents an unique dates
+        description: Each row represents an unique dates.
         tests:
           - unique
           - not_null
