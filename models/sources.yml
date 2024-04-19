@@ -6,14 +6,79 @@ sources:
     schema: GOOGLE_DRIVE
     tables:
      - name: EXPENSES
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
      - name: HR_JOINS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced     
      - name: HR_QUITS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
      - name: RETURNS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
+
   - name: SNOWFLAKE_LOAD_WEB_SCHEMA
     database: LOAD
     schema: SNOWFLAKE_LOAD_WEB_SCHEMA
     tables:
      - name: ITEM_VIEWS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
      - name: ORDERS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
      - name: PAGE_VIEWS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
      - name: SESSIONS
+       freshness: 
+         warn_after:
+           count: 1
+           period: day
+         error_after:
+           count: 2
+           period: day
+       loaded_at_field: _fivetran_synced
