@@ -88,9 +88,20 @@ models:
         tests:
           - unique
           - not_null
-      - name: TOTAL_QUANTITY
-        description: The net available quantity of each plant, calculated as the difference between quantities added to and removed from the cart.
-
+      - name: ITEM_PRICE
+        description:  The price of an individual item.
+      - name: ADD_QUANTITY_IN_LAST_MONTH
+        description: The total quantity of the item added to inventory last month.
+      - name: REMOVE_QUANTITY_IN_LAST_MONTH
+        description: The total quantity of the item removed from inventory last month.
+      - name: NUM_OF_ORDERS_IN_LAST_MONTH
+        description: The number of orders placed for the item in the last month.
+      - name: REFUNDED_LAST_MONTH
+        description: The total value of the item refunded in the last month.
+      - name: RETURNED_LAST_MONTH
+        description:  The total quantity of the item returned by customers last month.
+      - name: REFUNDED_RETURNED_RATE_LAST_MONTH
+        description: The rate of refunds and returns for the item in the last month, expressed as a percentage.     
 
 
 
