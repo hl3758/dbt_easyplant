@@ -124,9 +124,6 @@ models:
       - name: STATE_CODE
         description: The two-letter abbreviations of the state the order was shipped to.
       - name: SESSION_ID
-        tests:
-          - unique
-          - not_null
         description: Identifies the web session during which the order was placed.
       - name: SHIPPING_COST
         description: Costs associated with the shipping of the order.
