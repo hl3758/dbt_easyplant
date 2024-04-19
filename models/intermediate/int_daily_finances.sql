@@ -1,95 +1,99 @@
-WITH SalesData AS (
+WITH COMPLETED_ORDERS AS (
     SELECT
-        s.sell_date,
-        round(SUM(e.daily_salary), 2) AS total_daily_salaries,
-        round(SUM(s.daily_profit),2) AS total_daily_profit,
-        SUM(s.total_shipping_cost) AS total_shipping_cost,
-        round(SUM(s.total_tax_amount),2) AS total_tax_amount
+        O.ORDER_ID,
+        SESSION_ID,
+        CAST(ORDER_AT_TS AS DATE) AS ORDER_DATE,
+        SHIPPING_COST,
+        TAX_RATE
     FROM
-        (
-            SELECT
-                iv.sell_date,
-                SUM(iv.daily_profit) AS daily_profit,
-                SUM(o.SHIPPING_COST) AS total_shipping_cost,
-                SUM((o.SHIPPING_COST + iv.daily_profit) * o.TAX_RATE) AS total_tax_amount
-            FROM
-                (
-                    SELECT
-                        o.SESSION_ID,
-                        o.ORDER_AT_TS,
-                        CAST(TRIM(REPLACE(o.SHIPPING_COST, 'USD', '')) AS FLOAT) AS SHIPPING_COST,
-                        o.TAX_RATE,
-                        CAST(r.ORDER_ID AS STRING) AS ORDER_ID,
-                        CASE WHEN r.IS_REFUNDED_BOOLEAN = 'yes' THEN TRUE WHEN r.IS_REFUNDED_BOOLEAN = 'no' THEN FALSE ELSE NULL END AS IS_REFUNDED_BOOLEAN
-                    FROM
-                        {{ref('base_google_drive_returns')}} AS r
-                    INNER JOIN
-                        {{ref('base_web_orders')}} AS o
-                    ON
-                        CAST(r.ORDER_ID AS STRING) = o.ORDER_ID
-                    WHERE
-                        r.IS_REFUNDED_BOOLEAN = 'no'
-                ) AS o
-            INNER JOIN
-                (
-                    SELECT
-                        SESSION_ID,
-                        TO_DATE(DATE_TRUNC('day', ITEM_VIEW_AT_TS)) AS sell_date,
-                        SUM((ADD_TO_CART_QUANTITY - REMOVE_FROM_CART_QUANTITY) * PRICE_PER_UNIT) AS daily_profit
-                    FROM
-                        {{ref('base_web_item_views')}}
-                    WHERE
-                        ADD_TO_CART_QUANTITY != 0
-                    GROUP BY
-                        SESSION_ID, TO_DATE(DATE_TRUNC('day', ITEM_VIEW_AT_TS))
-                ) AS iv
-            ON
-                o.SESSION_ID = iv.SESSION_ID
-            GROUP BY
-                iv.sell_date
-        ) AS s
-    INNER JOIN
-        (
-            SELECT 
-                r.EMPLOYEE_ID,
-                CAST(TRIM(REPLACE(r.EMPLOYEE_HIRE_DATE, 'day', '')) AS DATE) AS EMPLOYEE_HIRE_DATE,
-                r.EMPLOYEE_ANNUAL_SALARY AS EMPLOYEE_ANNUAL_SALARY,
-                q.EMPLOYEE_QUIT_DATE AS EMPLOYEE_QUIT_DATE,
-                (r.EMPLOYEE_ANNUAL_SALARY / 365) AS daily_salary
-            FROM 
-                {{ref('base_GOOGLE_DRIVE_requests_JOINS')}} AS r
-            INNER JOIN 
-                {{ref('base_GOOGLE_DRIVE_requests_QUITS')}} AS q
-            ON 
-                r.EMPLOYEE_ID = q.EMPLOYEE_ID
-        ) AS e
+        {{ref('base_web_orders')}} O
+    LEFT JOIN
+        {{ref('base_google_drive_returns')}} R
     ON
-        s.sell_date >= e.EMPLOYEE_HIRE_DATE
-        AND (s.sell_date <= e.EMPLOYEE_QUIT_DATE OR e.EMPLOYEE_QUIT_DATE IS NULL)
-    GROUP BY
-        s.sell_date
+        O.ORDER_ID = R.ORDER_ID
+    WHERE
+        R.ORDER_ID IS NULL OR IS_REFUNDED_BOOLEAN = FALSE
 ),
-ExpenseData AS (
+
+ITEMS_SOLD AS (
+    SELECT
+        SESSION_ID,
+        SUM((ADD_TO_CART_QUANTITY - REMOVE_FROM_CART_QUANTITY) * PRICE_PER_UNIT) AS SOLD_VALUE
+    FROM
+        {{ref('base_web_item_views')}}
+    WHERE
+        ADD_TO_CART_QUANTITY != 0
+    GROUP BY
+        SESSION_ID
+),
+
+ORDER_REVENUE AS (
+    SELECT
+        ORDER_DATE,
+        SUM(SOLD_VALUE) AS DAILY_REVENUE,
+        SUM(SHIPPING_COST) AS DAILY_SHIPPING_COST,
+        SUM((SOLD_VALUE + SHIPPING_COST) * TAX_RATE) AS DAILY_TAX
+    FROM COMPLETED_ORDERS C
+    INNER JOIN ITEMS_SOLD S
+    ON C.SESSION_ID = S.SESSION_ID
+    GROUP BY 1
+),
+
+DAILY_EXPENSE AS (
     SELECT 
-        EXPENSES_DATE AS EXPENSES_DATE,
-        SUM(CAST(TRIM(REPLACE(EXPENSE_AMOUNT, '$', '')) AS FLOAT)) AS TOTAL_EXPENSE_AMOUNT
+        EXPENSES_DATE,
+        SUM(EXPENSE_AMOUNT) AS TOTAL_EXPENSE_AMOUNT
     FROM 
         {{ref('base_google_drive_expenses')}}
     GROUP BY 
         EXPENSES_DATE
+),
+
+ORDER_EXPENSE AS (
+    SELECT
+        COALESCE(ORDER_DATE, EXPENSES_DATE) AS DATE,
+        DAILY_REVENUE,
+        DAILY_SHIPPING_COST,
+        DAILY_TAX,
+        TOTAL_EXPENSE_AMOUNT AS DAILY_EXPENSE
+    FROM
+        ORDER_REVENUE R
+    FULL OUTER JOIN
+        DAILY_EXPENSE E
+    ON
+        R.ORDER_DATE = E.EXPENSES_DATE
+),
+
+EMPLOYEE_COST AS (
+    SELECT 
+        J.EMPLOYEE_ID,
+        EMPLOYEE_HIRE_DATE,
+        EMPLOYEE_ANNUAL_SALARY,
+        EMPLOYEE_QUIT_DATE,
+        EMPLOYEE_ANNUAL_SALARY / 365 AS DAILY_SALARY
+    FROM 
+        {{ref('base_GOOGLE_DRIVE_requests_JOINS')}} AS J
+    LEFT JOIN 
+        {{ref('base_GOOGLE_DRIVE_requests_QUITS')}} AS Q
+    ON 
+        J.EMPLOYEE_ID = Q.EMPLOYEE_ID
 )
-SELECT 
-    sd.sell_date AS "DATE",
-    sd.total_daily_salaries AS "DAILY_SALARIES",
-    sd.total_daily_profit AS "DAILY_PROFIT",
-    sd.total_shipping_cost AS "DAILY_SHIPPING_COST",
-    sd.total_tax_amount AS "DAILY_TAX",
-    ed.TOTAL_EXPENSE_AMOUNT AS "DAILY_EXPENSE"
-FROM 
-    SalesData sd
-LEFT JOIN 
-    ExpenseData ed
-ON 
-    sd.sell_date = ed.EXPENSES_DATE
-ORDER BY 
-    sd.sell_date
+
+SELECT *,
+    DAILY_REVENUE - DAILY_EXPENSE - DAILY_SALARY AS DAILY_PROFIT
+FROM
+(
+    SELECT
+        DATE,
+        DAILY_REVENUE,
+        DAILY_SHIPPING_COST,
+        DAILY_TAX,
+        DAILY_EXPENSE,
+        SUM(DAILY_SALARY) AS DAILY_SALARY
+    FROM ORDER_EXPENSE O
+    LEFT JOIN EMPLOYEE_COST C
+    ON O.DATE >= C.EMPLOYEE_HIRE_DATE
+        AND (O.DATE <= C.EMPLOYEE_QUIT_DATE OR C.EMPLOYEE_QUIT_DATE IS NULL)
+    GROUP BY 1, 2, 3, 4, 5
+)
+ORDER BY 1
