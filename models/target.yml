@@ -13,9 +13,9 @@ models:
         description: Amount of tax in the daily level
       - name: DAILY_SHIPPING_COST
         description: Amount of shipping cost in the daily level
-      - name: DAILY_SALARIES
+      - name: DAILY_SALARY
         description: Amount of salary expense in the daily level
-      - name: DAILY_PROFIT
+      - name: DAILY_REVENUE
         description: Amount of revenue earned from selling plants in the daily level
       - name: DAILY_EXPENSE
         description: Amount of daily expense from all types in the daily level
