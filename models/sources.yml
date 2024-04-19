@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: google_drive
-    database: LOAD
+    database: LOAD1
     schema: GOOGLE_DRIVE
     tables:
      - name: EXPENSES
@@ -43,8 +43,8 @@ sources:
        loaded_at_field: _fivetran_synced
 
   - name: SNOWFLAKE_LOAD_WEB_SCHEMA
-    database: LOAD
-    schema: SNOWFLAKE_LOAD_WEB_SCHEMA
+    database: LOAD1
+    schema: SNOWFLAKE_DB1_WEB_SCHEMA
     tables:
      - name: ITEM_VIEWS
        freshness: 
