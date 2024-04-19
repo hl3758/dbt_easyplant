@@ -23,8 +23,6 @@ models:
         description: Daily Revenue - Daily Salary - Daily Expense
 
 
-
-
   - name: dim_client
     description: The client dimension table. one row for each client
     columns:
@@ -49,8 +47,6 @@ models:
         description: The masked shipping address for each client
       - name: OS
         description: Type of serivce used to browse website
-
-
 
 
   - name: dim_employee
@@ -81,7 +77,6 @@ models:
         description: The total number of days worked by the employee from the hire date to the quit date, or 'until now' if still employed. 
 
 
-
   - name: dim_item
     description: The plant dimension table. one row for each plant
     columns:
@@ -106,7 +101,6 @@ models:
         description: The rate of refunds and returns for the item in the last month, expressed as a percentage.     
 
 
-
   - name: fact_order
     description: Captures detailed information about each order placed by clients, including transaction details, shipping, and returns. This table serves as a central point for analyzing sales performance, customer activity, and logistics.
     columns: 
@@ -115,31 +109,43 @@ models:
         tests:
           - unique
           - not_null
-      - name: SHIPPING_ADDRESS
-        description: The address where the order is shipped.
-      - name: SHIPPING_COST
-        description: Costs associated with the shipping of the order.
+      - name: ORDER_AT_TS
+        description: Timestamp of when the order is shopped.
       - name: PAYMENT_INFO
         description: Encrypted or secure details about the payment method used.
+      - name: PAYMENT_METHOD
+        description: The method of payment used for the order (e.g., credit card, PayPal, etc.).
+      - name: PHONE
+        description: Contact phone number masked of the client .
+      - name: SHIPPING_ADDRESS
+        description: The address where the order is shipped.
       - name: STATE
-        description: The state or region to which the order was shipped.
+        description: The state or region to which the order was shipped. 
+      - name: STATE_CODE
+        description: The two-letter abbreviations of the state the order was shipped to.
       - name: SESSION_ID
         tests:
           - unique
           - not_null
         description: Identifies the web session during which the order was placed.
-      - name: CLIENT_NAME
-        description: The name of the client who placed the order, potentially masked for privacy.
-      - name: PHONE
-        description: Contact phone number masked of the client .
+      - name: SHIPPING_COST
+        description: Costs associated with the shipping of the order.
       - name: TAX_RATE
         description: The tax rate applied to the order, based on the shipping location.  
-      - name: PAYMENT_METHOD
-        description: The method of payment used for the order (e.g., credit card, PayPal, etc.).
+      - name: IS_RETURNED_BOOLEAN
+        description: A boolean flag indicating whether the order was returned.
       - name: IS_REFUNDED_BOOLEAN
         description: A boolean flag indicating whether the order was refunded.
-
-
+      - name: RETURNED_AT_DATE
+        description: The date the company received the returned order.
+      - name: ITEMS
+        description: The item names and their associated ordered quantities.
+      - name: ITEM_COST
+        description: The cost of the items ordered before shipping fees and tax.
+      - name: TAX_COST
+        description: The cost of sales taxes on the items ordered including the shipping fees. 
+      - name: TOTAL_COST
+        description: The total amount paid by the client that includes the items, the shipping fees and the taxes.
 
 
   - name: fact_session
