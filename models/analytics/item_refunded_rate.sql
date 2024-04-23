@@ -7,7 +7,7 @@ sum(case when REFUNDED_RETURNED_RATE_LAST_WEEK > 0.3 and REFUNDED_RETURNED_RATE_
 from 
 {{ ref('dim_item') }}
 UNION ALL
-select '0,4-0.5', 
+select '0.4-0.5', 
 sum(case when REFUNDED_RETURNED_RATE_LAST_WEEK > 0.4 and REFUNDED_RETURNED_RATE_LAST_WEEK < 0.5 then 1 else 0 end) 
 from 
 {{ ref('dim_item') }}
