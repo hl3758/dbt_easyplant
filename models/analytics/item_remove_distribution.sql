@@ -12,12 +12,12 @@ sum(case when REMOVE_QUANTITY_IN_LAST_WEEK > 70 and REMOVE_QUANTITY_IN_LAST_WEEK
 from 
 {{ ref('dim_item') }}
 UNION ALL
-select '85-100', 
-sum(case when REMOVE_QUANTITY_IN_LAST_WEEK > 85 and REMOVE_QUANTITY_IN_LAST_WEEK < 100 then 1 else 0 end) 
+select '85-99', 
+sum(case when REMOVE_QUANTITY_IN_LAST_WEEK > 85 and REMOVE_QUANTITY_IN_LAST_WEEK < 99 then 1 else 0 end) 
 from 
 {{ ref('dim_item') }}
 UNION ALL
-select '100-115', 
-sum(case when REMOVE_QUANTITY_IN_LAST_WEEK > 100 then 1 else 0 end)
+select '99-115', 
+sum(case when REMOVE_QUANTITY_IN_LAST_WEEK > 99 then 1 else 0 end)
 from 
 {{ ref('dim_item') }}
